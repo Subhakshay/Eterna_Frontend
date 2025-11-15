@@ -1,13 +1,15 @@
 // src/app/layout.tsx
 import type { Metadata } from "next";
-import { Inter } from "next/font/google"; // Make sure Inter is imported
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
+import { RealtimeProvider } from "./RealtimeProvider";
+import { Navbar } from "@/components/organisms/Navbar";
+import { Footer } from "@/components/organisms/Footer";
 
-// Initialize the font with the variable
 const inter = Inter({
     subsets: ["latin"],
-    variable: "--font-inter", // <-- Add this
+    variable: "--font-inter",
 });
 
 export const metadata: Metadata = {
@@ -22,9 +24,16 @@ export default function RootLayout({
 }) {
     return (
         <html lang="en" suppressHydrationWarning>
-            {/* Add the font variable and 'font-sans' to the body */}
-            <body className={`${inter.variable} font-sans dark`}>
-                <Providers>{children}</Providers>
+            {/* CHANGE IS HERE: 
+        Increased padding-bottom from pb-12 to pb-20 
+      */}
+            <body className={`${inter.variable} font-sans dark bg-zinc-950 pb-20`}>
+                <Providers>
+                    <RealtimeProvider />
+                    <Navbar />
+                    {children}
+                    <Footer />
+                </Providers>
             </body>
         </html>
     );

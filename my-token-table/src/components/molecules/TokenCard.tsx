@@ -7,49 +7,52 @@ import { TokenCell } from "./TokenCell";
 import { PriceText } from "../atoms/PriceText";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Star } from "lucide-react"; // Import Star
 
 interface TokenCardProps {
     token: IToken;
+    isInWatchlist: boolean;
+    onToggleWatchlist: () => void;
 }
 
-// A simple component to display a stat with a label
-const Stat: React.FC<{ label: string; value: React.ReactNode }> = ({
-    label,
-    value,
-}) => (
+const Stat: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => (
     <div className="flex flex-col">
         <span className="text-sm text-zinc-400">{label}</span>
         <span className="text-base font-medium text-white">{value}</span>
     </div>
 );
 
-export const TokenCard: React.FC<TokenCardProps> = ({ token }) => {
+export const TokenCard: React.FC<TokenCardProps> = ({ token, isInWatchlist, onToggleWatchlist }) => {
     return (
         <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-4">
+
             {/* Top Section: Icon/Name and Price */}
             <div className="flex justify-between items-start">
                 <TokenCell name={token.name} symbol={token.symbol} icon={token.icon} />
-                <PriceText initialPrice={token.price} />
+
+                {/* Watchlist Star Button */}
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={onToggleWatchlist}
+                    className="text-zinc-500 hover:text-yellow-400 -mr-2 -mt-2"
+                >
+                    <Star
+                        className={cn("h-5 w-5", isInWatchlist && "fill-yellow-400 text-yellow-400")}
+                    />
+                </Button>
             </div>
+
+            {/* Price (moved below cell) */}
+            <PriceText symbol={token.id} initialPrice={token.price} />
 
             {/* Middle Section: Stats */}
             <div className="grid grid-cols-2 gap-4">
                 <Stat
                     label="Change (24h)"
                     value={
-                        <span
-                            className={cn(
-                                token.change > 0 ? "text-green-400" : "text-red-400"
-                            )}
-                        >
+                        <span className={cn(token.change > 0 ? "text-green-400" : "text-red-400")}>
                             {token.change.toFixed(2)}%
                         </span>
                     }
@@ -84,7 +87,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({ token }) => {
                     <div className="grid gap-4 py-4">
                         <p>Your trade UI would go here.</p>
                         <p className="text-lg font-bold">
-                            Current Price: <PriceText initialPrice={token.price} />
+                            Current Price: <PriceText symbol={token.id} initialPrice={token.price} />
                         </p>
                         <Button className="w-full bg-blue-600 hover:bg-blue-700">
                             Confirm Trade

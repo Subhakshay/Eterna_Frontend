@@ -1,70 +1,79 @@
 // src/app/page.tsx
-"use client";
+'use client';
 
 import { useState } from "react";
-// Import framer-motion
 import { motion, AnimatePresence } from "framer-motion";
 import { TokenTable } from "@/components/organisms/TokenTable";
-import { FadeIn } from "@/components/atoms/FadeIn"; // Import our new component
+import { FadeIn } from "@/components/atoms/FadeIn";
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input"; // Import Input
+import { Search } from "lucide-react"; // Import Search icon
 
 const TABS = [
-    { id: "new-pairs", label: "New pairs" },
-    { id: "final-stretch", label: "Final Stretch" },
-    { id: "migrated", label: "Migrated" },
+    { id: "top-movers", label: "Top Movers" },
+    { id: "new-listings", label: "New Listings" },
+    { id: "watchlist", label: "Watchlist" },
 ];
 
 export default function Home() {
     const [activeTab, setActiveTab] = useState(TABS[0].id);
+    const [search, setSearch] = useState(""); // State for the search bar
 
     return (
-        <main className="container mx-auto p-4 md:p-8 min-h-screen bg-gradient-to-b from-zinc-950 to-black">
+        <main className="container mx-auto p-4 md:p-8">
             <FadeIn>
                 <h1 className="text-4xl md:text-5xl font-bold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
                     Token Discovery
                 </h1>
             </FadeIn>
 
-            {/* --- New Animated Tabs --- */}
+            {/* --- Updated Tabs & Search Section --- */}
             <FadeIn>
-                <div className="flex space-x-2 p-1 bg-zinc-900 border border-zinc-800 rounded-lg">
-                    {TABS.map((tab) => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
-                            className="relative w-full rounded-md px-4 py-2 text-sm font-medium text-zinc-400 transition-colors"
-                        >
-                            {/* This is the sliding pill animation */}
-                            {activeTab === tab.id && (
-                                <motion.div
-                                    layoutId="activeTabPill"
-                                    className="absolute inset-0 bg-zinc-800"
-                                    style={{ borderRadius: 6 }}
-                                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                />
-                            )}
-                            {/* Text must be relative to be on top */}
-                            <span className="relative z-10">{tab.label}</span>
-                        </button>
-                    ))}
+                <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                    {/* Tabs */}
+                    <div className="flex space-x-6 border-b border-zinc-800 w-full md:w-auto">
+                        {TABS.map((tab) => (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
+                                className={cn(
+                                    "py-3 px-1 text-sm font-medium bg-transparent border-b-2",
+                                    activeTab === tab.id
+                                        ? "text-white border-white"
+                                        : "text-zinc-400 border-transparent hover:text-zinc-200"
+                                )}
+                            >
+                                {tab.label}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Search Bar */}
+                    <div className="relative w-full md:w-64">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+                        <Input
+                            type="search"
+                            placeholder="Search tokens..."
+                            className="w-full rounded-lg bg-zinc-900 border-zinc-700 pl-9"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                    </div>
                 </div>
             </FadeIn>
 
-            {/* --- Tab Content Area --- */}
+            {/* --- Tab Content --- */}
             <div className="mt-8">
-                {/* AnimatePresence makes the content fade between tabs */}
                 <AnimatePresence mode="wait">
                     <motion.div
-                        key={activeTab}
+                        key={activeTab} // This is fine
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.2 }}
                     >
-                        {/* We no longer need 3 separate TabsContent components.
-              We just render one TokenTable and pass it the activeTab.
-              This is much more efficient.
-            */}
-                        <TokenTable filter={activeTab} />
+                        {/* Pass the search term to the table */}
+                        <TokenTable filter={activeTab} search={search} />
                     </motion.div>
                 </AnimatePresence>
             </div>

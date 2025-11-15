@@ -7,36 +7,41 @@ import { IToken } from "@/lib/types";
 import { TokenCell } from "../molecules/TokenCell";
 import { PriceText } from "../atoms/PriceText";
 import { cn } from "@/lib/utils";
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Star } from "lucide-react"; // Import the Star icon
 
 interface TokenTableRowProps {
     token: IToken;
+    isInWatchlist: boolean;
+    onToggleWatchlist: () => void;
 }
 
-// Define the component as a separate const
-const TokenTableRowComponent: React.FC<TokenTableRowProps> = ({ token }) => {
+const TokenTableRowComponent: React.FC<TokenTableRowProps> = ({
+    token,
+    isInWatchlist,
+    onToggleWatchlist
+}) => {
     return (
         <TableRow className="border-zinc-800 hover:bg-zinc-800/50">
 
-            {/* 1. Token Cell (with "Live" dot) */}
+            {/* 0. Watchlist Star Button */}
+            <TableCell>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={onToggleWatchlist}
+                    className="text-zinc-500 hover:text-yellow-400"
+                >
+                    <Star
+                        className={cn("h-5 w-5", isInWatchlist && "fill-yellow-400 text-yellow-400")}
+                    />
+                </Button>
+            </TableCell>
+
+            {/* 1. Token Cell */}
             <TableCell>
                 <div className="flex items-center justify-between">
                     <TokenCell name={token.name} symbol={token.symbol} icon={token.icon} />
@@ -47,28 +52,17 @@ const TokenTableRowComponent: React.FC<TokenTableRowProps> = ({ token }) => {
                 </div>
             </TableCell>
 
-            {/* 2. Price Cell (Real-time) */}
+            {/* 2. Price Cell */}
             <TableCell>
-                <PriceText initialPrice={token.price} />
+                <PriceText symbol={token.id} initialPrice={token.price} />
             </TableCell>
 
-            {/* 3. Change Cell (with color) */}
-            <TableCell
-                className={cn(
-                    token.change > 0 ? "text-green-400" : "text-red-400"
-                )}
-            >
+            {/* 3. Change Cell */}
+            <TableCell className={cn(token.change > 0 ? "text-green-400" : "text-red-400")}>
                 {token.change.toFixed(2)}%
             </TableCell>
 
-            {/* 3.5. Chart Cell (New) */}
-            <TableCell className="hidden lg:table-cell">
-                <div className="h-8 w-24 rounded text-xs text-zinc-600 flex items-center justify-center">
-                    [ Chart ]
-                </div>
-            </TableCell>
-
-            {/* 4. Market Cap Cell (with a Tooltip) */}
+            {/* 4. Market Cap Cell */}
             <TableCell className="hidden md:table-cell">
                 <Tooltip>
                     <TooltipTrigger asChild>
@@ -82,7 +76,7 @@ const TokenTableRowComponent: React.FC<TokenTableRowProps> = ({ token }) => {
                 </Tooltip>
             </TableCell>
 
-            {/* 5. Volume Cell (with a Popover) */}
+            {/* 5. Volume Cell */}
             <TableCell className="hidden md:table-cell">
                 <Popover>
                     <PopoverTrigger asChild>
@@ -99,7 +93,7 @@ const TokenTableRowComponent: React.FC<TokenTableRowProps> = ({ token }) => {
                 </Popover>
             </TableCell>
 
-            {/* 6. Trade Button Cell (Polished) */}
+            {/* 6. Trade Button Cell */}
             <TableCell className="hidden sm:table-cell text-right">
                 <Dialog>
                     <DialogTrigger asChild>
@@ -121,7 +115,7 @@ const TokenTableRowComponent: React.FC<TokenTableRowProps> = ({ token }) => {
                         <div className="grid gap-4 py-4">
                             <p>Your trade UI would go here.</p>
                             <p className="text-lg font-bold">
-                                Current Price: <PriceText initialPrice={token.price} />
+                                Current Price: <PriceText symbol={token.id} initialPrice={token.price} />
                             </p>
                             <Button className="w-full bg-blue-600 hover:bg-blue-700">
                                 Confirm Trade
@@ -134,5 +128,4 @@ const TokenTableRowComponent: React.FC<TokenTableRowProps> = ({ token }) => {
     );
 };
 
-// Export the memoized version for performance
 export const TokenTableRow = React.memo(TokenTableRowComponent);

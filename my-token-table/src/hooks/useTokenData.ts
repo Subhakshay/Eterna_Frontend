@@ -2,38 +2,42 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { DEFAULT_MOCK_DATA } from "@/lib/mockData";
 import { IToken } from "@/lib/types";
+import { useWatchlistStore } from "@/store/watchlistStore";
 
-// This function simulates fetching data from an API
-async function fetchTokens(filter: string): Promise<IToken[]> {
-    console.log(`Fetching tokens for filter: ${filter}`);
+// The hook now accepts a search term
+export const useTokenData = (filter: string, search: string) => {
+    // Get the watchlist from our new store
+    const { watchlist } = useWatchlistStore();
 
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 750));
+    const fetchTokens = async (): Promise<IToken[]> => {
+        // Build the query parameters
+        const params = new URLSearchParams();
+        params.set("filter", filter);
 
-    // In a real app, you'd fetch from an API:
-    // const res = await fetch(`/api/tokens?filter=${filter}`);
-    // const data = await res.json();
-    // return data;
+        if (search) {
+            params.set("search", search);
+        }
 
-    // For now, we'll just return the mock data.
-    // You can add logic here to return different data based on the filter.
-    // For example, reverse the array for "Final Stretch"
-    if (filter === 'final-stretch') {
-        return [...DEFAULT_MOCK_DATA].reverse();
-    }
+        // If on the watchlist tab, send our watchlist symbols to the API
+        if (filter === "watchlist" && watchlist.length > 0) {
+            params.set("symbols", watchlist.join(","));
+        }
 
-    return DEFAULT_MOCK_DATA;
-}
+        const res = await fetch(`/api/tokens?${params.toString()}`);
 
+        if (!res.ok) {
+            throw new Error("Failed to fetch token data");
+        }
 
-export const useTokenData = (filter: string) => {
+        const data = await res.json();
+        return data;
+    };
+
     return useQuery<IToken[], Error>({
-        // The queryKey is an array that uniquely identifies this query.
-        // Adding 'filter' to it makes React Query refetch when the filter changes.
-        queryKey: ["tokens", filter],
-        queryFn: () => fetchTokens(filter),
-        // You can add options like 'staleTime' or 'refetchInterval' here
+        // The queryKey is now dynamic and includes all dependencies
+        // React Query will re-fetch automatically when any of these change
+        queryKey: ["tokens", filter, search, watchlist],
+        queryFn: fetchTokens,
     });
 };

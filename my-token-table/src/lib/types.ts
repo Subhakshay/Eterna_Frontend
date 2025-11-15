@@ -1,14 +1,17 @@
 // src/lib/types.ts
 
 export interface IToken {
-    id: string;
+    id: string; // This is the Finnhub Symbol
     name: string;
     symbol: string;
-    icon: string; // This would be a URL path, e.g., '/tokens/eth.svg'
+    coingeckoId: string; // <-- ADD THIS
+    icon: string;
     price: number;
-    change: number; // 24h change percentage
+    change: number;
     marketCap: number;
     volume: number;
-    // You can add more fields as needed from the Axiom website
-    // e.g., chain, liquidity, etc.
 }
+
+// This is the new type for CoinGecko's data
+// It's an array of [timestamp, open, high, low, close]
+export type CoinGeckoOHLC = number[];
